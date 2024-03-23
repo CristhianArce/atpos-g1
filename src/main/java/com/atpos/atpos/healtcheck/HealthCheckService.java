@@ -36,9 +36,12 @@ public class HealthCheckService {
             try {
                 if(dataBaseCheckRepo.selectOne() == 1) {
                     logger.info("DataBase Server is Working fine.");
+                } else {
+                    logger.info("DataBase Server is not available.");
                 }
             } catch (Exception e) {
               state = "DOWN";
+              logger.info("DataBase Server is not available.");
             }
         }
         int randomIndex = random.nextInt(2);
