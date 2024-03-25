@@ -1,6 +1,7 @@
 package com.atpos.atpos.user.service;
 
 import com.atpos.atpos.user.entity.User;
+import com.atpos.atpos.user.model.CustomUserDetails;
 import com.atpos.atpos.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
@@ -36,13 +37,7 @@ public class JpaUserDetailsService implements UserDetailsService {
         List<GrantedAuthority> authorities = user.getRoles().stream()
         .map(role -> new SimpleGrantedAuthority(role.getName()))
                 .collect(Collectors.toList());
-        return new org.springframework.security.core.userdetails.User(user.getUsername(), 
-        user.getPassword(), 
-        user.isEnabled(),
-        true,
-        true,
-        true,
-                authorities);
+        return new CustomUserDetails(user);
     }
     
 }

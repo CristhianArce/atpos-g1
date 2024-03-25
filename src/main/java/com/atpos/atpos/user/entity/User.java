@@ -2,11 +2,21 @@ package com.atpos.atpos.user.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 @Entity
@@ -25,6 +35,13 @@ public class User {
 
 	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
 	private String password;
+
+	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+	private Timestamp dateLicense;
+
+	private String name;
+	private String address;
+	private String contactNumber;
 
 	@JsonIgnoreProperties({"users", "handler", "hibernateLazyInitializer"})
 	@ManyToMany
