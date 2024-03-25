@@ -93,3 +93,25 @@ VALUES
     ('Product C5 Description', 'Product C5', 12.99, 80, 3),
     ('Product C6 Description', 'Product C6', 25.00, 45, 3),
     ('Product C7 Description', 'Product C7', 30.75, 70, 3);
+
+
+INSERT INTO product_in_stock (description, name, price, quantity, provider_id)
+VALUES
+    ('Product C1 Description', 'Product C1', 10.99, 100, 3),
+    ('Product C2 Description', 'Product C2', 20.50, 50, 3),
+    ('Product C3 Description', 'Product C3', 15.75, 75, 3),
+    ('Product C4 Description', 'Product C4', 18.25, 60, 3),
+    ('Product C5 Description', 'Product C5', 12.99, 80, 3),
+    ('Product C6 Description', 'Product C6', 25.00, 45, 3),
+    ('Product C7 Description', 'Product C7', 30.75, 70, 3);
+
+
+INSERT INTO users (username, password, enabled) VALUES ('daniel','$2a$10$g2x5dFa3o/H.JNL5lemMbux18g3Tw1CI5xW9HqZnijhWmmmktnnVW',true);
+INSERT INTO users (username, password, enabled) VALUES ('cristian','$2a$10$70k3hS.ITKWdonTA7P5KLO73ojmfqPp8uf.iMFdIHYCTzKTfVlAaO',true);
+
+INSERT INTO roles (name) VALUES ('ROLE_PROVIDER');
+INSERT INTO roles (name) VALUES ('ROLE_SELLER');
+
+INSERT INTO users_roles (user_id, role_id) VALUES (1, 1);
+INSERT INTO users_roles (user_id, role_id) VALUES (2, 2);
+
