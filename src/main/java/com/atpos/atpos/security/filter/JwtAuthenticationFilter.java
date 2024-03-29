@@ -28,6 +28,7 @@ import static com.atpos.atpos.security.TokenJwtConfig.CONTENT_TYPE;
 import static com.atpos.atpos.security.TokenJwtConfig.HEADER_AUTHORIZATION;
 import static com.atpos.atpos.security.TokenJwtConfig.PREFIX_TOKEN;
 import static com.atpos.atpos.security.TokenJwtConfig.SECRET_KEY;
+import static com.atpos.atpos.security.TokenJwtConfig.getSigningKey;
 
 
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
@@ -84,7 +85,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                 .claims(claims)
                 .expiration(new Date(System.currentTimeMillis() + 3600000))
                 .issuedAt(new Date())
-                .signWith(SECRET_KEY)
+                .signWith(getSigningKey())
                 .compact();
 
         response.addHeader(HEADER_AUTHORIZATION, PREFIX_TOKEN + token);

@@ -19,6 +19,7 @@ public class CustomUserDetails implements UserDetails {
     private String password;
     private Long id;
     Collection<? extends GrantedAuthority> authorities;
+    private boolean enable;
 
     public CustomUserDetails(User byUsername) {
         this.username = byUsername.getUsername();
@@ -31,6 +32,7 @@ public class CustomUserDetails implements UserDetails {
             auths.add(new SimpleGrantedAuthority(role.getName().toUpperCase()));
         }
         this.authorities = auths;
+        this.enable = byUsername.isEnabled();
     }
 
     @Override
@@ -65,6 +67,6 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return isEnable();
     }
 }

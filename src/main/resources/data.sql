@@ -17,7 +17,8 @@ INSERT INTO roles (name) VALUES ('ROLE_SELLER');
 
 INSERT INTO users_roles (user_id, role_id) VALUES (1, 1);
 INSERT INTO users_roles (user_id, role_id) VALUES (2, 2);
-
+INSERT INTO users_roles (user_id, role_id) VALUES (3, 1);
+INSERT INTO users_roles (user_id, role_id) VALUES (3, 2);
 
 -- For Provider A
 INSERT INTO product_in_stock (description, name, price, quantity, provider_id)

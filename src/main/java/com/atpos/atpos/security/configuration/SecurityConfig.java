@@ -2,6 +2,7 @@ package com.atpos.atpos.security.configuration;
 
 import com.atpos.atpos.security.filter.JwtAuthenticationFilter;
 import com.atpos.atpos.security.filter.JwtValidationFilter;
+import com.atpos.atpos.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -31,6 +32,8 @@ public class SecurityConfig {
 
     @Autowired
     private AuthenticationConfiguration authenticationConfiguration;
+    @Autowired
+    UserRepository userRepository;
 
     @Bean
     PasswordEncoder passwordEncoder() {
@@ -49,7 +52,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/users/register").permitAll()
                         .anyRequest().authenticated())
                 .addFilter(new JwtAuthenticationFilter(authenticationManager()))
-                .addFilter(new JwtValidationFilter(authenticationManager()))
+                .addFilter(new JwtValidationFilter(authenticationManager(), this.userRepository))
                 .csrf(config -> config.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
