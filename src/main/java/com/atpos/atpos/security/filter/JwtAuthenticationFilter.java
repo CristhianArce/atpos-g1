@@ -80,7 +80,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         Collection<? extends GrantedAuthority> roles = authResult.getAuthorities();
 
         Claims claims = Jwts.claims()
-                .add("authorities", new ObjectMapper().writeValueAsString(roles))
+                .add("authorities", roles.stream().map(GrantedAuthority::getAuthority).toList())
                 .add("username", username)
                 .add("id", user.getId())
                 .build();

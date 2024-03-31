@@ -23,11 +23,7 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.atpos.atpos.security.TokenJwtConfig.CONTENT_TYPE;
@@ -44,6 +40,21 @@ public class JwtValidationFilter extends BasicAuthenticationFilter {
     public JwtValidationFilter(AuthenticationManager authenticationManager, UserRepository userRepository) {
         super(authenticationManager);
         this.userRepository = userRepository;
+    }
+
+
+    private  static List<String> convertObjectToList(Object authoritiesClaims) {
+        List<String> stringList = new ArrayList<>();
+
+        if (authoritiesClaims instanceof Iterable) {
+            for (Object element : (Iterable<?>) authoritiesClaims) {
+                stringList.add(element.toString());
+            }
+        } else {
+            stringList.add(authoritiesClaims.toString());
+        }
+
+        return stringList;
     }
 
 
@@ -64,14 +75,11 @@ public class JwtValidationFilter extends BasicAuthenticationFilter {
             String username = claims.getSubject();
             Object authoritiesClaims = claims.get("authorities");
 
-            Collection<? extends GrantedAuthority> authorities = Arrays.asList(
-                    new ObjectMapper()
-                            .addMixIn(SimpleGrantedAuthority.class, SimpleGrantedAuthorityJsonCreator.class)
-                            .readValue(authoritiesClaims.toString().getBytes(), SimpleGrantedAuthority[].class)
-            );
+            Collection<? extends GrantedAuthority> authorities = convertObjectToList(authoritiesClaims).stream().map(SimpleGrantedAuthority::new).toList();
 
-
-            User user = userRepository.findByUsername(username).get();
+            var optionalUser = userRepository.findByUsername(username);
+            if(optionalUser.isEmpty()) throw new RuntimeException("The provided username is not valid");
+            User user = optionalUser.get();
             List<Role> roles = user.getRoles();
             List<String> rolesInDB = roles.stream()
                     .map(Role::getName)
@@ -100,7 +108,7 @@ public class JwtValidationFilter extends BasicAuthenticationFilter {
         } catch (JwtException e) {
             Map<String, String> body = new HashMap<>();
             body.put("error", e.getMessage());
-            body.put("message", "The provided JSON Web Token is not valid!");
+            body.put("message", "The provided JSON Web Token is not Fvalid!");
 
             response.getWriter().write(new ObjectMapper().writeValueAsString(body));
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
