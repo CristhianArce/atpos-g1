@@ -1,16 +1,42 @@
 INSERT INTO provider (address, contact_number, name)
 VALUES ('123 Main St', '123-456-7890', 'Provider A');
-
 INSERT INTO provider (address, contact_number, name)
 VALUES ('456 Oak Ave', '987-654-3210', 'Provider B');
-
 INSERT INTO provider (address, contact_number, name)
 VALUES ('789 Elm St', '555-123-4567', 'Provider C');
 
-INSERT INTO users (username, password, enabled, date_license, address, contact_number, name) VALUES ('daniel','$2a$10$g2x5dFa3o/H.JNL5lemMbux18g3Tw1CI5xW9HqZnijhWmmmktnnVW',true, '2025-02-21 19:55:55' , '123 Main St', '123-456-7890', 'Provider A');
-INSERT INTO users (username, password, enabled, date_license, address, contact_number, name) VALUES ('cristian','$2a$10$70k3hS.ITKWdonTA7P5KLO73ojmfqPp8uf.iMFdIHYCTzKTfVlAaO',true, '2025-02-21 19:55:55', '456 Oak Ave', '987-654-3210', 'Provider B');
-INSERT INTO users (username, password, enabled, date_license, address, contact_number, name) VALUES ('Jess','$2a$10$70k3hS.ITKWdonTA7P5KLO73ojmfqPp8uf.iMFdIHYCTzKTfVlAaO',true, '2025-02-21 19:55:55', '789 Elm St', '555-123-4567', 'Provider C');
+INSERT INTO license (description, expiration_date) VALUES ('License 1', '2024-12-31 23:59:59');
+INSERT INTO license (description, expiration_date) VALUES ('License 2', '2025-06-30 23:59:59');
+INSERT INTO license (description, expiration_date) VALUES ('License 3', '2023-08-15 23:59:59');
 
+
+INSERT INTO users (username, password, enabled, date_license, address, contact_number, name, license_id)
+VALUES ('daniel',
+        '$2a$10$g2x5dFa3o/H.JNL5lemMbux18g3Tw1CI5xW9HqZnijhWmmmktnnVW',
+        true,
+        '2025-02-21 19:55:55',
+        '123 Main St',
+        '123-456-7890',
+        'Provider A',
+        1);
+
+INSERT INTO users (username, password, enabled, date_license, address, contact_number, name, license_id)
+VALUES ('cristian',
+        '$2a$10$70k3hS.ITKWdonTA7P5KLO73ojmfqPp8uf.iMFdIHYCTzKTfVlAaO',
+        true,
+        '2025-02-21 19:55:55',
+        '456 Oak Ave', '987-654-3210',
+        'Provider B',
+        2);
+
+INSERT INTO users (username, password, enabled, date_license, address, contact_number, name, license_id)
+VALUES ('Jess',
+        '$2a$10$70k3hS.ITKWdonTA7P5KLO73ojmfqPp8uf.iMFdIHYCTzKTfVlAaO',
+        true,
+        '2025-02-21 19:55:55',
+        '789 Elm St', '555-123-4567',
+        'Provider C',
+        3);
 
 INSERT INTO roles (name) VALUES ('ROLE_PROVIDER');
 INSERT INTO roles (name) VALUES ('ROLE_SELLER');
@@ -20,6 +46,7 @@ INSERT INTO users_roles (user_id, role_id) VALUES (2, 2);
 INSERT INTO users_roles (user_id, role_id) VALUES (3, 1);
 INSERT INTO users_roles (user_id, role_id) VALUES (3, 2);
 
+-- 5a45a4a
 -- For Provider A
 INSERT INTO product_in_stock (description, name, price, quantity, provider_id)
 VALUES
@@ -117,6 +144,5 @@ VALUES
     ('Product C5 Description', 'Product C5', 12.99, 80, 3),
     ('Product C6 Description', 'Product C6', 25.00, 45, 3),
     ('Product C7 Description', 'Product C7', 30.75, 70, 3);
-
 
 

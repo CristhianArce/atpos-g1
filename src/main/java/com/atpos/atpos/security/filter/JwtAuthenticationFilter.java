@@ -1,8 +1,8 @@
 package com.atpos.atpos.security.filter;
 
-import com.atpos.atpos.healtcheck.HealthCheckService;
 import com.atpos.atpos.user.entity.User;
 import com.atpos.atpos.user.model.CustomUserDetails;
+import com.atpos.atpos.user.repository.UserRepository;
 import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,6 +20,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.io.IOException;
+import java.time.ZoneOffset;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -29,18 +30,19 @@ import java.util.logging.Logger;
 import static com.atpos.atpos.security.TokenJwtConfig.CONTENT_TYPE;
 import static com.atpos.atpos.security.TokenJwtConfig.HEADER_AUTHORIZATION;
 import static com.atpos.atpos.security.TokenJwtConfig.PREFIX_TOKEN;
-import static com.atpos.atpos.security.TokenJwtConfig.SECRET_KEY;
 import static com.atpos.atpos.security.TokenJwtConfig.getSigningKey;
 
 
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
-    private AuthenticationManager authenticationManager;
+
     private static final Logger logger = Logger.getLogger(JwtAuthenticationFilter.class.getName());
+    private AuthenticationManager authenticationManager;
+    private UserRepository userRepository;
 
-
-    public JwtAuthenticationFilter(AuthenticationManager authenticationManager) {
+    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, UserRepository userRepository) {
         this.authenticationManager = authenticationManager;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -78,11 +80,14 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         CustomUserDetails user = (CustomUserDetails) authResult.getPrincipal();
         String username = user.getUsername();
         Collection<? extends GrantedAuthority> roles = authResult.getAuthorities();
-
+        var userInfo = userRepository.findByUsername(username);
+        if (userInfo.isEmpty()) throw new RuntimeException("Not user to validate");
+        var license = userInfo.get().getLicense();
         Claims claims = Jwts.claims()
                 .add("authorities", roles.stream().map(GrantedAuthority::getAuthority).toList())
                 .add("username", username)
                 .add("id", user.getId())
+                .add("licenseExpiration", Date.from(license.getExpirationDate().toInstant(ZoneOffset.UTC)))
                 .build();
 
 

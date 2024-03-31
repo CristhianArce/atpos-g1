@@ -23,6 +23,8 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -89,7 +91,6 @@ public class JwtValidationFilter extends BasicAuthenticationFilter {
             List<String> differences = rolesFromToken.stream().filter(x -> !rolesInDB.contains(x)).toList();
 
             if (!differences.isEmpty()) {
-
                 user.setEnabled(false);
                 userRepository.save(user);
                 Map<String, String> body = new HashMap<>();
@@ -101,6 +102,20 @@ public class JwtValidationFilter extends BasicAuthenticationFilter {
                 return;
             }
 
+            Date licenseExpirationDate = new Date((Long) claims.get("licenseExpiration"));
+            var ldtLicenseExpirationDate = licenseExpirationDate
+                    .toInstant().atOffset(ZoneOffset.UTC)
+                    .toLocalDateTime();
+            if (ldtLicenseExpirationDate.isBefore(LocalDateTime.now())) {
+                Map<String, String> body = new HashMap<>();
+                body.put("message", "Your license has expired!");
+                response.getWriter().write(new ObjectMapper().writeValueAsString(body));
+                response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                response.setContentType(CONTENT_TYPE);
+                return;
+            }
+
+
             UsernamePasswordAuthenticationToken authenticationToken =
                     new UsernamePasswordAuthenticationToken(username, null, authorities);
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
@@ -108,7 +123,7 @@ public class JwtValidationFilter extends BasicAuthenticationFilter {
         } catch (JwtException e) {
             Map<String, String> body = new HashMap<>();
             body.put("error", e.getMessage());
-            body.put("message", "The provided JSON Web Token is not Fvalid!");
+            body.put("message", "The provided JSON Web Token is not Valid!");
 
             response.getWriter().write(new ObjectMapper().writeValueAsString(body));
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
