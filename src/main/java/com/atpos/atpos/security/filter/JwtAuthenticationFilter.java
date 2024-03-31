@@ -1,5 +1,6 @@
 package com.atpos.atpos.security.filter;
 
+import com.atpos.atpos.healtcheck.HealthCheckService;
 import com.atpos.atpos.user.entity.User;
 import com.atpos.atpos.user.model.CustomUserDetails;
 import com.fasterxml.jackson.core.exc.StreamReadException;
@@ -23,6 +24,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import static com.atpos.atpos.security.TokenJwtConfig.CONTENT_TYPE;
 import static com.atpos.atpos.security.TokenJwtConfig.HEADER_AUTHORIZATION;
@@ -34,6 +36,8 @@ import static com.atpos.atpos.security.TokenJwtConfig.getSigningKey;
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private AuthenticationManager authenticationManager;
+    private static final Logger logger = Logger.getLogger(JwtAuthenticationFilter.class.getName());
+
 
     public JwtAuthenticationFilter(AuthenticationManager authenticationManager) {
         this.authenticationManager = authenticationManager;
@@ -43,7 +47,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
             throws AuthenticationException {
 
-        User user = null;
+        User user;
         String username = null;
         String password = null;
 
@@ -52,21 +56,23 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             username = user.getUsername();
             password = user.getPassword();
         } catch (StreamReadException e) {
-            e.printStackTrace();
+            logger.severe("StreamReadException was thrown");
         } catch (DatabindException e) {
-            e.printStackTrace();
+            logger.severe("DatabindException was thrown");
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.severe("IOException was thrown");
         }
 
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username,
-                password);
+        UsernamePasswordAuthenticationToken authenticationToken =
+                new UsernamePasswordAuthenticationToken(username, password);
 
         return authenticationManager.authenticate(authenticationToken);
     }
 
     @Override
-    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
+    protected void successfulAuthentication(HttpServletRequest request,
+                                            HttpServletResponse response,
+                                            FilterChain chain,
                                             Authentication authResult) throws IOException, ServletException {
 
         CustomUserDetails user = (CustomUserDetails) authResult.getPrincipal();
@@ -92,8 +98,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         Map<String, String> body = new HashMap<>();
         body.put("token", token);
-        body.put("username", username);
-        body.put("message", String.format("Hola %s has iniciado sesion con exito!", username));
+        body.put("message", String.format("%s you have signed in successfully!", username));
 
         response.getWriter().write(new ObjectMapper().writeValueAsString(body));
         response.setContentType(CONTENT_TYPE);
@@ -104,7 +109,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
                                               AuthenticationException failed) throws IOException, ServletException {
         Map<String, String> body = new HashMap<>();
-        body.put("message", "Error en la autenticacion username o password incorrectos!");
+        body.put("message", "Error, username or password are incorrect!");
         body.put("error", failed.getMessage());
 
         response.getWriter().write(new ObjectMapper().writeValueAsString(body));

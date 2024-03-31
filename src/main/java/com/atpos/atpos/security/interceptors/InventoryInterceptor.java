@@ -12,6 +12,7 @@ public class InventoryInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object object) {
+        System.out.println(request.getPathInfo());
         return true;
     }
 

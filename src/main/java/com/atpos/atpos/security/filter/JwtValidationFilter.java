@@ -38,7 +38,7 @@ import static com.atpos.atpos.security.TokenJwtConfig.getSigningKey;
 
 public class JwtValidationFilter extends BasicAuthenticationFilter {
 
-    @Autowired
+
     private UserRepository userRepository;
 
     public JwtValidationFilter(AuthenticationManager authenticationManager, UserRepository userRepository) {
@@ -61,33 +61,31 @@ public class JwtValidationFilter extends BasicAuthenticationFilter {
 
         try {
             Claims claims = Jwts.parser().verifyWith(getSigningKey()).build().parseSignedClaims(token).getPayload();
-            String usename = claims.getSubject();
-            // String usename2 = (String) claims.get("username");
+            String username = claims.getSubject();
             Object authoritiesClaims = claims.get("authorities");
 
             Collection<? extends GrantedAuthority> authorities = Arrays.asList(
                     new ObjectMapper()
-                            .addMixIn(SimpleGrantedAuthority.class,
-                                    SimpleGrantedAuthorityJsonCreator.class)
+                            .addMixIn(SimpleGrantedAuthority.class, SimpleGrantedAuthorityJsonCreator.class)
                             .readValue(authoritiesClaims.toString().getBytes(), SimpleGrantedAuthority[].class)
             );
 
 
-            User user = userRepository.findByUsername(usename).get();
+            User user = userRepository.findByUsername(username).get();
             List<Role> roles = user.getRoles();
-            List<String> roleBaseDatos = roles.stream()
+            List<String> rolesInDB = roles.stream()
                     .map(Role::getName)
                     .toList();
 
-            List<String> rolesToken = authorities.stream().map(x -> x.getAuthority()).toList();
-            List<String> differences = rolesToken.stream().filter(x -> !roleBaseDatos.contains(x)).toList();
+            List<String> rolesFromToken = authorities.stream().map(GrantedAuthority::getAuthority).toList();
+            List<String> differences = rolesFromToken.stream().filter(x -> !rolesInDB.contains(x)).toList();
 
             if (!differences.isEmpty()) {
 
                 user.setEnabled(false);
                 userRepository.save(user);
                 Map<String, String> body = new HashMap<>();
-                body.put("message", "El token JWT es invalido! [Elevacion de permisos]");
+                body.put("message", "You have tried to scalate privileges you don't have!, Blocking username, please contact your admin if this is an error, to enable again.");
 
                 response.getWriter().write(new ObjectMapper().writeValueAsString(body));
                 response.setStatus(HttpStatus.UNAUTHORIZED.value());
@@ -95,13 +93,14 @@ public class JwtValidationFilter extends BasicAuthenticationFilter {
                 return;
             }
 
-            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(usename, null, authorities);
+            UsernamePasswordAuthenticationToken authenticationToken =
+                    new UsernamePasswordAuthenticationToken(username, null, authorities);
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
             chain.doFilter(request, response);
         } catch (JwtException e) {
             Map<String, String> body = new HashMap<>();
             body.put("error", e.getMessage());
-            body.put("message", "El token JWT es invalido!");
+            body.put("message", "The provided JSON Web Token is not valid!");
 
             response.getWriter().write(new ObjectMapper().writeValueAsString(body));
             response.setStatus(HttpStatus.UNAUTHORIZED.value());

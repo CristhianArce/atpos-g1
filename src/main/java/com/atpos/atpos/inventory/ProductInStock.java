@@ -1,6 +1,7 @@
 package com.atpos.atpos.inventory;
 
 import com.atpos.atpos.user.entity.User;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -25,6 +26,7 @@ public class ProductInStock {
     private int quantity;
 
     @ManyToOne
+    @JsonIgnore
     private User provider;
 
 }

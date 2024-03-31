@@ -19,8 +19,11 @@ import java.util.stream.Collectors;
 @Service
 public class JpaUserDetailsService implements UserDetailsService {
 
-    @Autowired
-    private UserRepository repository;
+    private final UserRepository repository;
+
+    public JpaUserDetailsService(UserRepository repository) {
+        this.repository = repository;
+    }
 
     @Transactional(readOnly = true)
     @Override
