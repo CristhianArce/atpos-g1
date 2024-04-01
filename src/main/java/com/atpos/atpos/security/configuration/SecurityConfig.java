@@ -3,6 +3,7 @@ package com.atpos.atpos.security.configuration;
 import com.atpos.atpos.security.filter.JwtAuthenticationFilter;
 import com.atpos.atpos.security.filter.JwtValidationFilter;
 import com.atpos.atpos.user.repository.UserRepository;
+import com.atpos.atpos.utils.ElevationOfPrivilegesDetectedFaultsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -34,10 +35,15 @@ public class SecurityConfig {
 
     private AuthenticationConfiguration authenticationConfiguration;
     private UserRepository userRepository;
+    private ElevationOfPrivilegesDetectedFaultsService elevationOfPrivilegesDetectedFaultsService;
 
-    public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, UserRepository userRepository) {
+    public SecurityConfig(
+            AuthenticationConfiguration authenticationConfiguration,
+            UserRepository userRepository,
+            ElevationOfPrivilegesDetectedFaultsService elevationOfPrivilegesDetectedFaultsService) {
         this.authenticationConfiguration = authenticationConfiguration;
         this.userRepository = userRepository;
+        this.elevationOfPrivilegesDetectedFaultsService = elevationOfPrivilegesDetectedFaultsService;
     }
 
     @Bean
@@ -57,7 +63,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/health").permitAll()
                         .anyRequest().authenticated())
                 .addFilter(new JwtAuthenticationFilter(authenticationManager(), this.userRepository))
-                .addFilter(new JwtValidationFilter(authenticationManager(), this.userRepository))
+                .addFilter(new JwtValidationFilter(authenticationManager(), this.userRepository, this.elevationOfPrivilegesDetectedFaultsService))
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
