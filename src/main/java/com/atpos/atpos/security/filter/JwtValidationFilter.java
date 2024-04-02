@@ -111,11 +111,12 @@ public class JwtValidationFilter extends BasicAuthenticationFilter {
                 response.setStatus(HttpStatus.UNAUTHORIZED.value());
                 response.setContentType(CONTENT_TYPE);
                 validationEndTime = System.nanoTime();
-                var elapsedTime = validationStartTime - validationEndTime / 1e6;
+                var elapsedTime = ((validationEndTime - validationStartTime) / 1e6);
                 detectedFaultsService.detectedFault(
                         "Attempt of Elevation of Privileges",
                         elapsedTime,
-                        "SEVERE"
+                        "SEVERE",
+                        user.getUsername()
                         );
                 return;
             }

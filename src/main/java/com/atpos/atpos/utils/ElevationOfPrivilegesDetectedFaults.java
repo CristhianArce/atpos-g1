@@ -22,4 +22,5 @@ public class ElevationOfPrivilegesDetectedFaults {
     private double elapsedTime;
     private LocalDateTime detectionTime = LocalDateTime.now();
     private String severity;
+    private String username;
 }
